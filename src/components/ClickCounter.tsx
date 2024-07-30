@@ -23,7 +23,7 @@ export const ClickCounter = () => {
     });
 
     return unsub;
-  });
+  }, []);
 
   return (
     <>
