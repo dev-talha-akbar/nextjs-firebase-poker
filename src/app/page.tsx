@@ -1,4 +1,4 @@
-import { ClickCounter } from "@/components/ClickCounter";
+import ClickCounter from "@/components/ClickCounter";
 import Image from "next/image";
 
 export default function Home() {
