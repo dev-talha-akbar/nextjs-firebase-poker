@@ -8,6 +8,7 @@ import {
   CardFooter,
   CardHeader,
   Chip,
+  Divider,
   Image,
   Input,
   Select,
@@ -22,6 +23,7 @@ export default function PlanningPoker() {
   const participants: number = 2;
   const [isVoting, setIsVoting] = useState(false);
   const [votingEnded, setVotingEnded] = useState(false);
+  const [voteSubmitted, setVoteSubmitted] = useState(false);
 
   const container = {
     initial: {},
@@ -163,25 +165,31 @@ export default function PlanningPoker() {
                     setVotingEnded(true);
                   }
                 }}
+                variant={
+                  !isVoting || (isVoting && voteSubmitted) ? "solid" : "light"
+                }
                 color="primary"
+                isDisabled={isVoting && !voteSubmitted}
               >
                 {!isVoting ? "Begin voting" : "End voting"}
               </Button>
+              <Divider className="mx-2" orientation="vertical" />
               <Select
                 className="w-64"
                 label="Select your card"
-                isDisabled={!isVoting}
+                isDisabled={!isVoting || voteSubmitted}
               >
                 <SelectItem key={1}>1</SelectItem>
                 <SelectItem key={2}>2</SelectItem>
               </Select>
               <Button
                 className="h-14"
-                variant="light"
+                variant={isVoting && !voteSubmitted ? "solid" : "light"}
                 color="primary"
                 isDisabled={!isVoting}
+                onClick={() => setVoteSubmitted(!voteSubmitted)}
               >
-                Reset vote
+                {!voteSubmitted ? "Submit vote" : "Retract vote"}
               </Button>
             </div>
           </CardBody>
