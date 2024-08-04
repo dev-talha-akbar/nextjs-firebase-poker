@@ -128,12 +128,10 @@ export default function PlanningPoker() {
                       transition={{ delay: 1 }}
                     >
                       <div className={`card ${votingEnded ? "revealed" : ""}`}>
-                        <div className="back"></div>
                         <div className="front">
-                          <div className="num-box top suit">13</div>
-                          <div className="num-box bottom suit">13</div>
-                          <div className="main suit"></div>
+                          <div className="main suit">13</div>
                         </div>
+                        <div className="back"></div>
                       </div>
                     </motion.div>
                   )}
@@ -186,10 +184,10 @@ export default function PlanningPoker() {
                 className="h-14"
                 variant={isVoting && !voteSubmitted ? "solid" : "light"}
                 color="primary"
-                isDisabled={!isVoting}
+                isDisabled={!isVoting || votingEnded}
                 onClick={() => setVoteSubmitted(!voteSubmitted)}
               >
-                {!voteSubmitted ? "Submit vote" : "Retract vote"}
+                {voteSubmitted && !votingEnded ? "Retract vote" : "Submit vote"}
               </Button>
             </div>
           </CardBody>

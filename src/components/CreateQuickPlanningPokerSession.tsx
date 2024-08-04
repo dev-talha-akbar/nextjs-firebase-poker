@@ -29,22 +29,20 @@ export function CreateQuickPlanningPokerSession() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(createSession)}
-      className="flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(createSession)} className="flex gap-4">
       <Input
         {...register("sessionName")}
         label="Enter session name"
         placeholder={defaultSessionName}
+        className="w-96"
       />
       <Button
-        className="flex-initial"
+        className="h-34 w-48"
         type="submit"
         variant="solid"
         color="primary"
       >
-        Start planning poker
+        Start
       </Button>
     </form>
   );
