@@ -2,32 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.card {
+  display: block;
+  width: 120px;
+  height: 160px;
+  position: relative;
+  cursor: pointer;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.front,
+.back {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 5px silver);
+  border-radius: 12px;
+  backface-visibility: hidden;
+  transition: all 0.5s;
 }
+.back {
+  --darkBg: hsl(var(--nextui-primary-300));
+  --lightBg: white;
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  border: 6px solid #fff;
+  background: conic-gradient(
+    var(--darkBg) 25%,
+    var(--lightBg) 25%,
+    var(--lightBg) 50%,
+    var(--darkBg) 50%,
+    var(--darkBg) 75%,
+    var(--lightBg) 75%
+  );
+  background-size: 20px 20px;
 }
