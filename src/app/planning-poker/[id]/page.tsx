@@ -21,6 +21,7 @@ import { useState } from "react";
 export default function PlanningPoker() {
   const participants: number = 2;
   const [isVoting, setIsVoting] = useState(false);
+  const [votingEnded, setVotingEnded] = useState(false);
 
   const container = {
     initial: {},
@@ -124,8 +125,13 @@ export default function PlanningPoker() {
                       animate={{ scale: 1 }}
                       transition={{ delay: 1 }}
                     >
-                      <div className="card">
+                      <div className={`card ${votingEnded ? "revealed" : ""}`}>
                         <div className="back"></div>
+                        <div className="front">
+                          <div className="num-box top suit">13</div>
+                          <div className="num-box bottom suit">13</div>
+                          <div className="main suit"></div>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -144,7 +150,13 @@ export default function PlanningPoker() {
             <div className="flex gap-4">
               <Button
                 className="h-14"
-                onClick={() => setIsVoting(!isVoting)}
+                onClick={() => {
+                  if (!isVoting) {
+                    setIsVoting(true);
+                  } else {
+                    setVotingEnded(true);
+                  }
+                }}
                 color="primary"
               >
                 {!isVoting ? "Begin voting" : "End voting"}
