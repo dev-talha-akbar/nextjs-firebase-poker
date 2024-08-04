@@ -113,7 +113,7 @@ export default function PlanningPoker() {
           )}
           <motion.div
             layout
-            className="flex flex-wrap justify-center max-w-[600px] gap-12"
+            className="flex flex-wrap justify-center max-w-[700px] gap-12"
           >
             {Array(5)
               .fill("")
@@ -135,9 +135,15 @@ export default function PlanningPoker() {
                       </div>
                     </motion.div>
                   )}
-                  <div className="flex justify-between h-12 min-w-[150px]">
-                    <User name="Jane Doe" description="Moderator" />
-                    {isVoting && <Spinner size="sm" color="primary" />}
+                  <div className="flex justify-between h-12 gap-4">
+                    <User
+                      name="Jane Smith Doe"
+                      description="Moderator"
+                      classNames={{ name: votingEnded ? "font-bold" : "" }}
+                    />
+                    {isVoting && !votingEnded && (
+                      <Spinner size="sm" color="primary" />
+                    )}
                   </div>
                 </div>
               ))}
