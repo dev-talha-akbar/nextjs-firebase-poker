@@ -13,7 +13,10 @@ export function JoinSession() {
           Before you can join the session, please enter your name to help others
           identify you.
         </p>
-        <SignInAsGuest mainActionText="Join session" />
+        <SignInAsGuest
+          onSignIn={() => window.location.reload()}
+          mainActionText="Join session"
+        />
       </div>
     </div>
   );

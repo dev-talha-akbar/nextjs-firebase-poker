@@ -43,11 +43,7 @@ export default function PlanningPoker({ params }: { params: any }) {
 
   useEffect(() => {
     async function joinSession() {
-      if (
-        typeof params.id === "string" &&
-        currentUser &&
-        currentUser.displayName
-      ) {
+      if (typeof params.id === "string" && currentUser) {
         await updateDoc(doc(db, "planning_poker_sessions", params.id), {
           participants: arrayUnion({
             uid: currentUser.uid,

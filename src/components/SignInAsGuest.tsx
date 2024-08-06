@@ -25,10 +25,14 @@ export function SignInAsGuest({
 
   const signInAsGuest: SubmitHandler<Inputs> = async ({ displayName }) => {
     if (!auth.currentUser) {
-      await signInAnonymously(auth);
-    }
+      const credential = await signInAnonymously(auth);
 
-    if (auth.currentUser) {
+      await updateProfile(credential.user, {
+        displayName,
+      });
+
+      await credential.user.reload();
+    } else {
       await updateProfile(auth.currentUser, {
         displayName,
       });
