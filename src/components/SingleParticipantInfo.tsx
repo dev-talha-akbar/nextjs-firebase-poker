@@ -7,8 +7,8 @@ export function SingleParticipantInfo() {
   return (
     <div className="flex flex-1 items-center justify-center ">
       <div className="flex flex-col gap-4">
-        <h2 className="text-4xl font-extrabold leading-none tracking-tight">
-          Nobody here beside you.
+        <h2 className="text-4xl font-extrabold text-center leading-none tracking-tight">
+          Nobody here beside you
         </h2>
         <p>
           Before you can begin voting, you need to invite other participants.

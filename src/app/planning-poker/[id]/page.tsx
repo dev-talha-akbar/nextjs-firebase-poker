@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { VotingControlPanel } from "@/components/VotingControlPanel";
 import { copyInvitationToClipboard } from "@/utils/copyToClipboard";
+import { JoinSession } from "@/components/JoinSession";
 
 export default function PlanningPoker({ params }: { params: any }) {
   const [session, setSession] = useState<PlanningPokerSession>();
@@ -42,7 +43,11 @@ export default function PlanningPoker({ params }: { params: any }) {
 
   useEffect(() => {
     async function joinSession() {
-      if (typeof params.id === "string" && currentUser) {
+      if (
+        typeof params.id === "string" &&
+        currentUser &&
+        currentUser.displayName
+      ) {
         await updateDoc(doc(db, "planning_poker_sessions", params.id), {
           participants: arrayUnion({
             uid: currentUser.uid,
@@ -94,12 +99,15 @@ export default function PlanningPoker({ params }: { params: any }) {
             <span>{sessionName}</span>
           </div>
         </div>
-        <div className="flex flex-col">
-          <Participant displayName={currentUser?.displayName || ""} />
-        </div>
+        {currentUser && (
+          <div className="flex flex-col">
+            <Participant displayName={currentUser.displayName} />
+          </div>
+        )}
       </div>
-      {participants.length === 1 && <SingleParticipantInfo />}
-      {participants.length > 1 && (
+      {!currentUser && <JoinSession />}
+      {currentUser && participants.length === 1 && <SingleParticipantInfo />}
+      {currentUser && participants.length > 1 && (
         <>
           <div className="flex flex-col flex-1 items-center justify-center gap-12">
             <PokerContainer session={session} />
