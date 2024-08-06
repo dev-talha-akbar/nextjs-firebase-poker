@@ -20,6 +20,7 @@ export function ConfirmMyVote({
     <Button
       className="h-auto"
       variant={isDisabled ? "light" : "solid"}
+      color="primary"
       isDisabled={isDisabled}
       onClick={updateMyVote}
     >
