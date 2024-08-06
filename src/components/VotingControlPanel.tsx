@@ -13,7 +13,7 @@ import { StartVoting } from "./StartVoting";
 import { ResetVotes } from "./ResetVotes";
 import { ConfirmMyVote } from "./ConfirmMyVote";
 import { ResetMyVote } from "./ResetMyVote";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function VotingControlPanel({
   session,
@@ -24,12 +24,17 @@ export function VotingControlPanel({
 
   const currentUser = useCurrentUser();
   const isModerator = currentModerator === currentUser?.uid;
-  const isMyVoteConfirmed = currentUser ? !!votes[currentUser?.uid] : false;
+  const myVote = (currentUser && votes[currentUser.uid]) || "";
+  const isMyVoteConfirmed = myVote !== "";
   const hasEveryoneVoted = participants
     .map((participant) => votes[participant.uid])
     .every((vote) => typeof vote !== "undefined");
 
-  const [selectedVote, setSelectedVote] = useState<string>("");
+  const [selectedVote, setSelectedVote] = useState<string>(myVote);
+
+  useEffect(() => {
+    setSelectedVote(myVote);
+  }, [myVote]);
 
   return (
     <div className="flex sticky bottom-0 py-12 justify-center">
@@ -48,21 +53,17 @@ export function VotingControlPanel({
                   />
                 )}
                 {votingStatus === "ended" && (
-                  <ResetVotes
-                    sessionId={session.id}
-                    onClick={() => setSelectedVote("")}
-                  />
+                  <ResetVotes sessionId={session.id} />
                 )}
                 <Divider className="mx-2" orientation="vertical" />
               </>
             )}
 
             <Select
-              key={votingStatus}
               className="w-64"
               label="Select your card"
               isDisabled={votingStatus !== "started" || isMyVoteConfirmed}
-              value={selectedVote}
+              selectedKeys={[selectedVote]}
               onChange={(e) => setSelectedVote(e.target.value)}
             >
               <SelectItem key={1}>1</SelectItem>
