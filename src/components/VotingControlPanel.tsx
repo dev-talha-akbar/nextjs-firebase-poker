@@ -66,8 +66,11 @@ export function VotingControlPanel({
               selectedKeys={[selectedVote]}
               onChange={(e) => setSelectedVote(e.target.value)}
             >
-              <SelectItem key={1}>1</SelectItem>
-              <SelectItem key={2}>2</SelectItem>
+              {["1", "2", "3", "5", "8", "13", "21", "34", "55"].map(
+                (complexity) => (
+                  <SelectItem key={complexity}>{complexity}</SelectItem>
+                )
+              )}
             </Select>
             {votingStatus === "started" && isMyVoteConfirmed ? (
               <ResetMyVote sessionId={session.id} />

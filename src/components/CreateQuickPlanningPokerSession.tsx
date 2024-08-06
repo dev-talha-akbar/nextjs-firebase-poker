@@ -49,33 +49,25 @@ export function CreateQuickPlanningPokerSession() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 w-[600px] items-center">
-        {currentUser && (
-          <div className="flex h-12 items-center">
-            <User name={currentUser.displayName} />
-          </div>
-        )}
         <h2 className="text-4xl font-extrabold leading-none tracking-tight">
           Rapid planning poker.
         </h2>
         <p>
           With almost just a click, get your very own planning poker session and
-          invite your team members with a single link.
+          invite your team members.
         </p>
       </div>
       <form
         onSubmit={handleSubmit(createSession)}
         className="flex justify-center gap-4"
       >
-        {!currentUser && (
-          <>
-            <Input
-              {...register("displayName")}
-              label="Enter your name"
-              placeholder="Others will see you by this name"
-              className="w-96"
-            />
-          </>
-        )}
+        <Input
+          {...register("displayName")}
+          label="Enter your name"
+          placeholder="Others will see you by this name"
+          className="w-96"
+          value={currentUser?.displayName || ""}
+        />
 
         <Button
           className="min-h-12 h-auto w-48"

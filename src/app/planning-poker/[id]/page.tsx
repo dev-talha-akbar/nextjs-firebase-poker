@@ -1,27 +1,12 @@
 "use client";
 
 import { Participant } from "@/components/Participant";
-import { PokerCard } from "@/components/PokerCard";
-import { VotingControlPanel } from "@/components/VotingControlPanel";
+import { PokerContainer } from "@/components/PokerContainer";
+import { SingleParticipantInfo } from "@/components/SingleParticipantInfo";
 import { db } from "@/firebase/db";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { PlanningPokerSession } from "@/types";
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Chip,
-  Divider,
-  Image,
-  Input,
-  Select,
-  SelectItem,
-  Spinner,
-  User,
-} from "@nextui-org/react";
+import { Chip } from "@nextui-org/react";
 import {
   arrayUnion,
   doc,
@@ -29,8 +14,10 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
+
+import { VotingControlPanel } from "@/components/VotingControlPanel";
+import { copyInvitationToClipboard } from "@/utils/copyToClipboard";
 
 export default function PlanningPoker({ params }: { params: any }) {
   const [session, setSession] = useState<PlanningPokerSession>();
@@ -84,29 +71,23 @@ export default function PlanningPoker({ params }: { params: any }) {
     return;
   }
 
-  const { participants, votingStatus, votes, currentModerator, sessionName } =
-    session;
-
-  const container = {
-    initial: {},
-    animate: {
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const item = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { ease: "easeInOut" } },
-  };
+  const { participants, sessionName } = session;
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-l from-white via-gray-200 to-white">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex flex-col gap-1 p-4">
-          <h2 className="text-xl font-bold">
-            Planning poker <Chip>{participants.length} participants</Chip>
+          <h2 className="flex text-xl font-bold gap-2">
+            <span>Planning poker</span>
+            <Chip>{participants.length} participants</Chip>
+            <Chip
+              variant="bordered"
+              color="primary"
+              className="cursor-pointer"
+              onClick={copyInvitationToClipboard}
+            >
+              Copy invitation
+            </Chip>
           </h2>
           <div className="flex gap-2">
             <span className="text-gray-600">Session</span>
@@ -117,117 +98,15 @@ export default function PlanningPoker({ params }: { params: any }) {
           <Participant displayName={currentUser?.displayName || ""} />
         </div>
       </div>
-      {participants.length === 1 && (
-        <div className="flex flex-1 items-center justify-center ">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-4xl font-extrabold leading-none tracking-tight">
-              Nobody here beside you.
-            </h2>
-            <p>
-              Before you can begin voting, you need to invite other
-              participants.
-            </p>
-            <div className="flex gap-2">
-              <Input value={window.location.href} />
-              <Button variant="bordered" color="primary">
-                Copy invitation
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {participants.length === 1 && <SingleParticipantInfo />}
       {participants.length > 1 && (
-        <div className="flex flex-col flex-1 items-center justify-center gap-12">
-          {false && (
-            <motion.div variants={item} className="flex gap-2">
-              <span className="text-gray-600">Topic</span>
-              <span className="text-primary">SPG-3894</span>
-            </motion.div>
-          )}
-
-          {votingStatus === "new" && (
-            <h2 className="text-xl font-bold leading-none tracking-tight">
-              {participants.length} participants in this round. Voting yet to
-              begin.
-            </h2>
-          )}
-          {votingStatus === "started" && (
-            <motion.div
-              variants={container}
-              initial="initial"
-              animate="animate"
-              transition={{ delay: 1, staggerChildren: 0.4 }}
-              className="flex flex-col gap-8 items-center justify-center"
-            >
-              <motion.div variants={container} className="flex flex-col gap-4">
-                <motion.div
-                  variants={item}
-                  className="flex gap-4 items-center justify-center"
-                >
-                  <h2 className="text-xl text-center font-bold leading-none tracking-tight">
-                    Voting in progress
-                  </h2>
-
-                  <Chip variant="solid" color="primary">
-                    {Object.keys(votes).length}/{participants.length} voted
-                  </Chip>
-                </motion.div>
-                {currentUser && !votes[currentUser?.uid] && (
-                  <motion.p variants={item} className="text-sm text-gray-600">
-                    You have not yet voted. Choose your card at the bottom of
-                    the screen.
-                  </motion.p>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
-          {votingStatus === "ended" && (
-            <motion.div
-              variants={container}
-              initial="initial"
-              animate="animate"
-            >
-              <motion.div
-                variants={item}
-                className="flex gap-4 items-center justify-center"
-              >
-                <h2 className="text-xl text-center font-bold leading-none tracking-tight">
-                  Everyone has voted and the results are in!
-                </h2>
-              </motion.div>
-            </motion.div>
-          )}
-          <motion.div
-            layout
-            className="flex flex-wrap justify-center max-w-[700px] gap-12"
-          >
-            {participants.map(({ uid, displayName }) => (
-              <div key={uid} className="flex flex-col items-center gap-4">
-                {["started", "ended", "review"].includes(votingStatus) && (
-                  <PokerCard revealed={votingStatus === "ended"}>
-                    {votes[uid]}
-                  </PokerCard>
-                )}
-                <div className="flex justify-between h-12 gap-4">
-                  <Participant
-                    displayName={displayName}
-                    description={
-                      currentModerator === uid ? "Moderator" : "Participant"
-                    }
-                    classNames={{
-                      name: votingStatus === "ended" ? "font-bold" : "",
-                    }}
-                  />
-                  {votingStatus === "started" && !votes[uid] && (
-                    <Spinner size="sm" color="primary" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
+        <>
+          <div className="flex flex-col flex-1 items-center justify-center gap-12">
+            <PokerContainer session={session} />
+          </div>
+          <VotingControlPanel session={session} />
+        </>
       )}
-      <VotingControlPanel session={session} />
     </main>
   );
 }
