@@ -29,7 +29,7 @@ export function VotingControlPanel({
     .map((participant) => votes[participant.uid])
     .every((vote) => typeof vote !== "undefined");
 
-  const [selectedVote, setSelectedVote] = useState<string>();
+  const [selectedVote, setSelectedVote] = useState<string>("");
 
   return (
     <div className="flex sticky bottom-0 py-12 justify-center">
@@ -48,13 +48,17 @@ export function VotingControlPanel({
                   />
                 )}
                 {votingStatus === "ended" && (
-                  <ResetVotes sessionId={session.id} />
+                  <ResetVotes
+                    sessionId={session.id}
+                    onClick={() => setSelectedVote("")}
+                  />
                 )}
                 <Divider className="mx-2" orientation="vertical" />
               </>
             )}
 
             <Select
+              key={votingStatus}
               className="w-64"
               label="Select your card"
               isDisabled={votingStatus !== "started" || isMyVoteConfirmed}

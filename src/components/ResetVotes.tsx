@@ -5,8 +5,10 @@ import { Button } from "@nextui-org/react";
 
 export function ResetVotes({
   sessionId,
+  onClick,
 }: {
   sessionId: PlanningPokerSession["id"];
+  onClick?: () => void;
 }) {
   const resetVotes = useResetVotes({
     sessionId,
@@ -17,7 +19,10 @@ export function ResetVotes({
       className="h-auto"
       variant="solid"
       color="primary"
-      onClick={resetVotes}
+      onClick={() => {
+        resetVotes();
+        onClick?.();
+      }}
     >
       Reset
     </Button>
