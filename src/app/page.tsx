@@ -1,5 +1,4 @@
 import { CreateQuickPlanningPokerSession } from "@/components/CreateQuickPlanningPokerSession";
-import { auth } from "@/firebase/auth";
 
 export default function Home() {
   return (
@@ -13,15 +12,7 @@ export default function Home() {
         </div>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2 items-center">
-            <h2 className="text-4xl font-extrabold leading-none tracking-tight">
-              Rapid planning poker.
-            </h2>
-            <p>Get started by naming your session or use the default one.</p>
-          </div>
-          <CreateQuickPlanningPokerSession />
-        </div>
+        <CreateQuickPlanningPokerSession />
       </div>
     </main>
   );

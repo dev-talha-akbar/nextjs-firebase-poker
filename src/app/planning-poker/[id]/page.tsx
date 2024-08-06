@@ -1,5 +1,11 @@
 "use client";
 
+import { Participant } from "@/components/Participant";
+import { PokerCard } from "@/components/PokerCard";
+import { VotingControlPanel } from "@/components/VotingControlPanel";
+import { db } from "@/firebase/db";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { PlanningPokerSession } from "@/types";
 import {
   Badge,
   Button,
@@ -16,14 +22,70 @@ import {
   Spinner,
   User,
 } from "@nextui-org/react";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export default function PlanningPoker() {
-  const participants: number = 2;
-  const [isVoting, setIsVoting] = useState(false);
-  const [votingEnded, setVotingEnded] = useState(false);
-  const [voteSubmitted, setVoteSubmitted] = useState(false);
+export default function PlanningPoker({ params }: { params: any }) {
+  const [session, setSession] = useState<PlanningPokerSession>();
+
+  const currentUser = useCurrentUser();
+
+  useEffect(() => {
+    async function getSession() {
+      if (typeof params.id === "string") {
+        const sessionDoc = await getDoc(
+          doc(db, "planning_poker_sessions", params.id)
+        );
+        setSession({
+          id: params.id,
+          ...sessionDoc.data(),
+        } as PlanningPokerSession);
+      }
+    }
+
+    getSession();
+  }, [params.id]);
+
+  useEffect(() => {
+    async function joinSession() {
+      if (typeof params.id === "string" && currentUser) {
+        await updateDoc(doc(db, "planning_poker_sessions", params.id), {
+          participants: arrayUnion({
+            uid: currentUser.uid,
+            displayName: currentUser.displayName,
+          }),
+        });
+      }
+    }
+
+    joinSession();
+  }, [params.id, currentUser]);
+
+  useEffect(() => {
+    return onSnapshot(
+      doc(db, "planning_poker_sessions", params.id),
+      (sessionDoc) => {
+        setSession({
+          id: params.id,
+          ...sessionDoc.data(),
+        } as PlanningPokerSession);
+      }
+    );
+  }, [params.id]);
+
+  if (!session) {
+    return;
+  }
+
+  const { participants, votingStatus, votes, currentModerator, sessionName } =
+    session;
 
   const container = {
     initial: {},
@@ -44,18 +106,18 @@ export default function PlanningPoker() {
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex flex-col gap-1 p-4">
           <h2 className="text-xl font-bold">
-            Planning poker <Chip>1 participants</Chip>
+            Planning poker <Chip>{participants.length} participants</Chip>
           </h2>
           <div className="flex gap-2">
             <span className="text-gray-600">Session</span>
-            <span>Planning poker | 03/08/2024</span>
+            <span>{sessionName}</span>
           </div>
         </div>
         <div className="flex flex-col">
-          <User name="Jane Doe" />
+          <Participant displayName={currentUser?.displayName || ""} />
         </div>
       </div>
-      {participants === 1 && (
+      {participants.length === 1 && (
         <div className="flex flex-1 items-center justify-center ">
           <div className="flex flex-col gap-4">
             <h2 className="text-4xl font-extrabold leading-none tracking-tight">
@@ -74,14 +136,15 @@ export default function PlanningPoker() {
           </div>
         </div>
       )}
-      {participants === 2 && (
+      {participants.length > 1 && (
         <div className="flex flex-col flex-1 items-center justify-center gap-12">
-          {!isVoting && (
+          {votingStatus === "new" && (
             <h2 className="text-xl font-bold leading-none tracking-tight">
-              2 participants in this round. Voting yet to begin.
+              {participants.length} participants in this round. Voting yet to
+              begin.
             </h2>
           )}
-          {isVoting && (
+          {votingStatus === "started" && (
             <motion.div
               variants={container}
               initial="initial"
@@ -103,7 +166,7 @@ export default function PlanningPoker() {
                   </h2>
 
                   <Chip variant="solid" color="primary">
-                    2/5 voted
+                    {Object.keys(votes).length}/{participants.length} voted
                   </Chip>
                 </motion.div>
                 <motion.p variants={item} className="text-sm text-gray-600">
@@ -117,82 +180,33 @@ export default function PlanningPoker() {
             layout
             className="flex flex-wrap justify-center max-w-[700px] gap-12"
           >
-            {Array(5)
-              .fill("")
-              .map((_, i) => (
-                <div key={i} className="flex flex-col items-center gap-4">
-                  {isVoting && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 1 }}
-                    >
-                      <div className={`card ${votingEnded ? "revealed" : ""}`}>
-                        <div className="front">
-                          <div className="main suit">13</div>
-                        </div>
-                        <div className="back"></div>
-                      </div>
-                    </motion.div>
+            {participants.map(({ uid, displayName }) => (
+              <div key={uid} className="flex flex-col items-center gap-4">
+                {["started", "ended", "review"].includes(votingStatus) && (
+                  <PokerCard revealed={votingStatus === "ended"}>
+                    {votes[uid]}
+                  </PokerCard>
+                )}
+                <div className="flex justify-between h-12 gap-4">
+                  <Participant
+                    displayName={displayName}
+                    description={
+                      currentModerator === uid ? "Moderator" : "Participant"
+                    }
+                    classNames={{
+                      name: votingStatus === "ended" ? "font-bold" : "",
+                    }}
+                  />
+                  {votingStatus === "started" && !votes[uid] && (
+                    <Spinner size="sm" color="primary" />
                   )}
-                  <div className="flex justify-between h-12 gap-4">
-                    <User
-                      name="Jane Smith Doe"
-                      description="Moderator"
-                      classNames={{ name: votingEnded ? "font-bold" : "" }}
-                    />
-                    {isVoting && !votingEnded && (
-                      <Spinner size="sm" color="primary" />
-                    )}
-                  </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </motion.div>
         </div>
       )}
-      <div className="flex sticky bottom-0 py-12 justify-center">
-        <Card>
-          <CardBody>
-            <div className="flex gap-4">
-              <Button
-                className="h-14"
-                onClick={() => {
-                  if (!isVoting) {
-                    setIsVoting(true);
-                  } else {
-                    setVotingEnded(true);
-                  }
-                }}
-                variant={
-                  !isVoting || (isVoting && voteSubmitted) ? "solid" : "light"
-                }
-                color="primary"
-                isDisabled={isVoting && !voteSubmitted}
-              >
-                {!isVoting ? "Begin voting" : "End voting"}
-              </Button>
-              <Divider className="mx-2" orientation="vertical" />
-              <Select
-                className="w-64"
-                label="Select your card"
-                isDisabled={!isVoting || voteSubmitted}
-              >
-                <SelectItem key={1}>1</SelectItem>
-                <SelectItem key={2}>2</SelectItem>
-              </Select>
-              <Button
-                className="h-14"
-                variant={isVoting && !voteSubmitted ? "solid" : "light"}
-                color="primary"
-                isDisabled={!isVoting || votingEnded}
-                onClick={() => setVoteSubmitted(!voteSubmitted)}
-              >
-                {voteSubmitted && !votingEnded ? "Retract vote" : "Submit vote"}
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+      <VotingControlPanel session={session} />
     </main>
   );
 }
