@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/auth";
 import { signInAnonymously, updateProfile } from "firebase/auth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useEffect } from "react";
 
 type Inputs = {
   displayName: string;
@@ -30,8 +31,10 @@ export function CreateQuickPlanningPokerSession() {
 
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, {
-        displayName: displayName,
+        displayName,
       });
+
+      await auth.currentUser.reload();
     }
 
     const session = await addDoc(collection(db, "planning_poker_sessions"), {
@@ -66,7 +69,7 @@ export function CreateQuickPlanningPokerSession() {
           label="Enter your name"
           placeholder="Others will see you by this name"
           className="w-96"
-          value={currentUser?.displayName || ""}
+          defaultValue={currentUser?.displayName || ""}
         />
 
         <Button
