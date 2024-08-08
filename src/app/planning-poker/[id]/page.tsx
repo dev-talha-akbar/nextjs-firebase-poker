@@ -80,7 +80,9 @@ export default function PlanningPoker({ params }: { params: any }) {
         <div className="flex flex-col gap-1 p-4">
           <h2 className="flex text-xl font-bold gap-2">
             <span>Planning poker</span>
-            <Chip>{participants.length} participants</Chip>
+            <Chip variant="dot" color="success">
+              {participants.length} participants
+            </Chip>
             <Chip
               variant="bordered"
               color="primary"
