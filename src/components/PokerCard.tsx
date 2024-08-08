@@ -16,7 +16,7 @@ export function PokerCard({
     >
       <div className={`card ${revealed ? "revealed" : ""}`}>
         <div className="front">
-          <div className="main suit">{children}</div>
+          <div className="main suit">{children ?? "?"}</div>
         </div>
         <div className="back"></div>
       </div>

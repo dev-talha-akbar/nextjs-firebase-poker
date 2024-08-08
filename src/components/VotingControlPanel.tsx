@@ -63,7 +63,7 @@ export function VotingControlPanel({
               className="w-64"
               label="Select your card"
               isDisabled={votingStatus !== "started" || isMyVoteConfirmed}
-              selectedKeys={[selectedVote]}
+              selectedKeys={selectedVote ? [selectedVote] : []}
               onChange={(e) => setSelectedVote(e.target.value)}
             >
               {["1", "2", "3", "5", "8", "13", "21", "34", "55"].map(

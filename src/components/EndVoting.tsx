@@ -9,7 +9,6 @@ export function EndVoting({
   hasEveryoneVoted: boolean;
   sessionId: PlanningPokerSession["id"];
 }) {
-  const isDisabled = !hasEveryoneVoted;
   const updateVotingStatus = useUpdateVotingStatus({
     sessionId,
     votingStatus: "ended",
@@ -19,8 +18,7 @@ export function EndVoting({
     <Button
       className="h-auto"
       color="primary"
-      variant={isDisabled ? "light" : "solid"}
-      isDisabled={isDisabled}
+      variant={!hasEveryoneVoted ? "light" : "solid"}
       onClick={updateVotingStatus}
     >
       End voting
