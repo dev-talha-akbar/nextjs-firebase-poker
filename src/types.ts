@@ -9,6 +9,7 @@ export interface PlanningPokerSession {
   owner: User["uid"];
   currentModerator: User["uid"];
   participants: Participant[];
-  votingStatus: "new" | "started" | "ended";
+  votingStatus: "setTopic" | "new" | "started" | "ended";
   votes: Record<User["uid"], string>;
+  currentTopic: string;
 }

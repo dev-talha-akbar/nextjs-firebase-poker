@@ -43,8 +43,11 @@ export function VotingControlPanel({
           <div className="flex gap-4">
             {isModerator && (
               <>
-                {votingStatus === "new" && (
-                  <StartVoting sessionId={session.id} />
+                {["setTopic", "new"].includes(votingStatus) && (
+                  <StartVoting
+                    isSelectingIssue={votingStatus === "setTopic"}
+                    sessionId={session.id}
+                  />
                 )}
                 {votingStatus === "started" && (
                   <EndVoting

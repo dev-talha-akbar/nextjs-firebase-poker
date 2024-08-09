@@ -3,18 +3,19 @@ import { PlanningPokerSession } from "@/types";
 import { doc, updateDoc } from "firebase/firestore";
 import { useCallback } from "react";
 
-export function useResetVotes({
+export function useSetVotingTopic({
   sessionId,
+  topicText,
 }: {
   sessionId: PlanningPokerSession["id"];
+  topicText: string;
 }) {
-  const resetVotes = useCallback(async () => {
+  const setTopic = useCallback(async () => {
     await updateDoc(doc(db, "planning_poker_sessions", sessionId), {
-      votingStatus: "setTopic",
-      votes: {},
-      currentTopic: "",
+      currentTopic: topicText,
+      votingStatus: "new",
     });
-  }, [sessionId]);
+  }, [sessionId, topicText]);
 
-  return resetVotes;
+  return setTopic;
 }

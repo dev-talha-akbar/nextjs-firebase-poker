@@ -1,11 +1,12 @@
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { PlanningPokerSession } from "@/types";
-import { Chip } from "@nextui-org/react";
+import { Chip, Spinner } from "@nextui-org/react";
 import { motion } from "framer-motion";
 
 export function PokerInfo({ session }: { session: PlanningPokerSession }) {
   const currentUser = useCurrentUser();
-  const { votingStatus, participants, votes } = session;
+  const { votingStatus, participants, votes, currentModerator } = session;
+  const isModerator = currentUser?.uid === currentModerator;
 
   const container = {
     initial: {},
@@ -23,18 +24,34 @@ export function PokerInfo({ session }: { session: PlanningPokerSession }) {
 
   return (
     <>
-      {false && (
-        <motion.div variants={item} className="flex gap-2">
-          <span className="text-gray-600">Topic</span>
-          <span className="text-primary">SPG-3894</span>
+      {["setTopic", "new"].includes(votingStatus) && (
+        <motion.div
+          variants={container}
+          initial="initial"
+          animate="animate"
+          className="flex flex-col gap-4 items-center"
+        >
+          <motion.h2
+            variants={item}
+            className="text-xl font-bold leading-none tracking-tight"
+          >
+            {votingStatus === "setTopic"
+              ? "Voting will begin on a new topic."
+              : `${participants.length} participants in this round. Voting yet to start.`}
+          </motion.h2>
+
+          {!isModerator && votingStatus === "new" && (
+            <motion.div
+              variants={item}
+              className="text-gray-600 text-xs flex items-center gap-2"
+            >
+              <Spinner size="sm" color="primary" /> Waiting on the moderator to
+              start
+            </motion.div>
+          )}
         </motion.div>
       )}
 
-      {votingStatus === "new" && (
-        <h2 className="text-xl font-bold leading-none tracking-tight">
-          {participants.length} participants in this round. Voting yet to begin.
-        </h2>
-      )}
       {votingStatus === "started" && (
         <motion.div
           variants={container}

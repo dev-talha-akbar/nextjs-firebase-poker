@@ -6,7 +6,7 @@ import { SingleParticipantInfo } from "@/components/SingleParticipantInfo";
 import { db } from "@/firebase/db";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { PlanningPokerSession } from "@/types";
-import { Chip } from "@nextui-org/react";
+import { Button, Chip, Input, Spinner } from "@nextui-org/react";
 import {
   arrayUnion,
   doc,
@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState } from "react";
 import { VotingControlPanel } from "@/components/VotingControlPanel";
 import { copyInvitationToClipboard } from "@/utils/copyToClipboard";
 import { JoinSession } from "@/components/JoinSession";
+import { SetTopic } from "@/components/SetVotingTopic";
 
 export default function PlanningPoker({ params }: { params: any }) {
   const [session, setSession] = useState<PlanningPokerSession>();
@@ -76,29 +77,43 @@ export default function PlanningPoker({ params }: { params: any }) {
     return;
   }
 
-  const { participants, sessionName } = session;
+  const { participants, sessionName, votingStatus, currentModerator } = session;
+  const isModerator = currentUser?.uid === currentModerator;
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-l from-white via-gray-200 to-white">
-      <div className="container mx-auto flex items-center justify-between">
-        <div className="flex flex-col gap-1 p-4">
-          <h2 className="flex text-xl font-bold gap-2">
-            <span>Planning poker</span>
+      <div className="container mx-auto flex items-center justify-between p-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-2 items-center">
+            <h2 className="flex text-xl font-bold">Planning poker</h2>
+            <Chip variant="light">
+              <div className="flex gap-2">
+                <span className="text-gray-600">Session</span>
+                <span>{sessionName}</span>
+              </div>
+            </Chip>
+          </div>
+          <div className="flex gap-2">
+            <Chip variant="bordered" color="primary">
+              <div className="flex gap-2 items-center">
+                <span>Topic</span>
+                {votingStatus !== "setTopic" ? (
+                  <span>{session.currentTopic}</span>
+                ) : (
+                  <Spinner size="sm" />
+                )}
+              </div>
+            </Chip>
             <Chip variant="dot" color="success">
               {participants.length} participants
             </Chip>
             <Chip
               variant="bordered"
-              color="primary"
               className="cursor-pointer"
               onClick={copyInvitationToClipboard}
             >
-              Copy invitation
+              Copy invite
             </Chip>
-          </h2>
-          <div className="flex gap-2">
-            <span className="text-gray-600">Session</span>
-            <span>{sessionName}</span>
           </div>
         </div>
         {currentUser && (
@@ -112,7 +127,13 @@ export default function PlanningPoker({ params }: { params: any }) {
       {currentUser && participants.length > 1 && (
         <>
           <div className="flex flex-col flex-1 items-center justify-center gap-12">
-            <PokerContainer session={session} />
+            {isModerator && votingStatus === "setTopic" && (
+              <SetTopic session={session} />
+            )}
+            {isModerator && votingStatus !== "setTopic" && (
+              <PokerContainer session={session} />
+            )}
+            {!isModerator && <PokerContainer session={session} />}
           </div>
           <VotingControlPanel session={session} />
         </>

@@ -4,7 +4,9 @@ import { Button } from "@nextui-org/react";
 
 export function StartVoting({
   sessionId,
+  isSelectingIssue,
 }: {
+  isSelectingIssue: boolean;
   sessionId: PlanningPokerSession["id"];
 }) {
   const updateVotingStatus = useUpdateVotingStatus({
@@ -16,6 +18,7 @@ export function StartVoting({
     <Button
       className="h-auto"
       variant="solid"
+      isDisabled={isSelectingIssue}
       color="primary"
       onClick={updateVotingStatus}
     >
