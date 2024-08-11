@@ -1,22 +1,17 @@
 "use client";
 
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "@/firebase/db";
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebase/auth";
 import { SignInAsGuest } from "./SignInAsGuest";
+import { createSession } from "@/lib/firebase/firestore";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export function CreateQuickPlanningPokerSession() {
   const router = useRouter();
+  const currentUser = useCurrentUser();
 
-  const createSession = async () => {
-    const session = await addDoc(collection(db, "planning_poker_sessions"), {
-      sessionName: `Planning Poker | ${new Date().toLocaleDateString()}`,
-      owner: auth.currentUser?.uid,
-      currentModerator: auth.currentUser?.uid,
-      participants: [],
-      votes: {},
-      votingStatus: "setTopic",
+  const handleSignIn = async () => {
+    const session = await createSession({
+      currentUser,
     });
 
     router.push(`/planning-poker/${session.id}`);
@@ -33,7 +28,7 @@ export function CreateQuickPlanningPokerSession() {
           invite your team members.
         </p>
       </div>
-      <SignInAsGuest mainActionText="Create session" onSignIn={createSession} />
+      <SignInAsGuest mainActionText="Create session" onSignIn={handleSignIn} />
     </div>
   );
 }

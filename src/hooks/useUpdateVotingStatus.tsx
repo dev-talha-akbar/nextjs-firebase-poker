@@ -1,7 +1,6 @@
-import { db } from "@/firebase/db";
-import { PlanningPokerSession } from "@/types";
-import { doc, updateDoc } from "firebase/firestore";
 import { useCallback } from "react";
+import { updateVotingStatus } from "@/lib/firebase/firestore";
+import { PlanningPokerSession } from "@/types";
 
 export function useUpdateVotingStatus({
   sessionId,
@@ -10,11 +9,7 @@ export function useUpdateVotingStatus({
   sessionId: PlanningPokerSession["id"];
   votingStatus: PlanningPokerSession["votingStatus"];
 }) {
-  const updateVotingStatus = useCallback(async () => {
-    await updateDoc(doc(db, "planning_poker_sessions", sessionId), {
-      votingStatus,
-    });
+  return useCallback(async () => {
+    await updateVotingStatus({ sessionId, votingStatus });
   }, [sessionId, votingStatus]);
-
-  return updateVotingStatus;
 }

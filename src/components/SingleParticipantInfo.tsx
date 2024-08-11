@@ -1,6 +1,6 @@
 "use client";
 
-import { copyInvitationToClipboard } from "@/utils/copyToClipboard";
+import { copyInvitationToClipboard } from "@/lib/copyToClipboard";
 import { Button, Input } from "@nextui-org/react";
 
 export function SingleParticipantInfo() {

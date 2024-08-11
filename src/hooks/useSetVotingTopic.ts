@@ -1,7 +1,6 @@
-import { db } from "@/firebase/db";
-import { PlanningPokerSession } from "@/types";
-import { doc, updateDoc } from "firebase/firestore";
 import { useCallback } from "react";
+import { setSessionTopic } from "@/lib/firebase/firestore";
+import { PlanningPokerSession } from "@/types";
 
 export function useSetVotingTopic({
   sessionId,
@@ -10,12 +9,7 @@ export function useSetVotingTopic({
   sessionId: PlanningPokerSession["id"];
   topicText: string;
 }) {
-  const setTopic = useCallback(async () => {
-    await updateDoc(doc(db, "planning_poker_sessions", sessionId), {
-      currentTopic: topicText,
-      votingStatus: "new",
-    });
+  return useCallback(async () => {
+    await setSessionTopic({ sessionId, topicText });
   }, [sessionId, topicText]);
-
-  return setTopic;
 }

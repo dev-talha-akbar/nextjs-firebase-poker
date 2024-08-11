@@ -1,8 +1,7 @@
-import { db } from "@/firebase/db";
-import { deleteField, doc, updateDoc } from "firebase/firestore";
 import { useCallback } from "react";
 import { useCurrentUser } from "./useCurrentUser";
 import { PlanningPokerSession } from "@/types";
+import { updateMyVote } from "@/lib/firebase/firestore";
 
 export function useUpdateMyVote({
   sessionId,
@@ -12,14 +11,14 @@ export function useUpdateMyVote({
   newVote?: string;
 }) {
   const currentUser = useCurrentUser();
-  const updateMyVote = useCallback(async () => {
+
+  return useCallback(async () => {
     if (currentUser) {
-      await updateDoc(doc(db, "planning_poker_sessions", sessionId), {
-        [`votes.${currentUser.uid}`]:
-          typeof newVote !== "undefined" ? newVote : deleteField(),
+      await updateMyVote({
+        sessionId,
+        currentUser,
+        newVote,
       });
     }
   }, [sessionId, currentUser, newVote]);
-
-  return updateMyVote;
 }

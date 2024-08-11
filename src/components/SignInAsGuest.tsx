@@ -1,7 +1,11 @@
-import { auth } from "@/firebase/auth";
+import { auth } from "@/lib/firebase/clientApp";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Button, Input } from "@nextui-org/react";
-import { signInAnonymously, updateProfile } from "firebase/auth";
+import {
+  signInAnonymously,
+  updateCurrentUser,
+  updateProfile,
+} from "firebase/auth";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 type Inputs = {

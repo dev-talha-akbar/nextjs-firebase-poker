@@ -3,75 +3,55 @@
 import { Participant } from "@/components/Participant";
 import { PokerContainer } from "@/components/PokerContainer";
 import { SingleParticipantInfo } from "@/components/SingleParticipantInfo";
-import { db } from "@/firebase/db";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { PlanningPokerSession } from "@/types";
 import { Button, Chip, Input, Spinner } from "@nextui-org/react";
-import {
-  arrayUnion,
-  doc,
-  getDoc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
 import { VotingControlPanel } from "@/components/VotingControlPanel";
-import { copyInvitationToClipboard } from "@/utils/copyToClipboard";
+import { copyInvitationToClipboard } from "@/lib/copyToClipboard";
 import { JoinSession } from "@/components/JoinSession";
 import { SetTopic } from "@/components/SetVotingTopic";
+import { getSession, joinSession } from "@/lib/firebase/firestore";
+import { db } from "@/lib/firebase/clientApp";
 
 export default function PlanningPoker({ params }: { params: any }) {
+  const sessionId = params.id;
   const [session, setSession] = useState<PlanningPokerSession>();
 
   const currentUser = useCurrentUser();
 
   useEffect(() => {
-    async function getSession() {
-      if (typeof params.id === "string") {
-        const sessionDoc = await getDoc(
-          doc(db, "planning_poker_sessions", params.id)
-        );
-        setSession({
-          id: params.id,
-          ...sessionDoc.data(),
-        } as PlanningPokerSession);
+    (async function () {
+      if (typeof sessionId === "string") {
+        setSession(await getSession({ sessionId }));
       }
-    }
-
-    getSession();
-  }, [params.id]);
+    })();
+  }, [sessionId]);
 
   useEffect(() => {
-    async function joinSession() {
-      if (
-        typeof params.id === "string" &&
-        currentUser &&
-        currentUser.displayName
-      ) {
-        await updateDoc(doc(db, "planning_poker_sessions", params.id), {
-          participants: arrayUnion({
-            uid: currentUser.uid,
-            displayName: currentUser.displayName,
-          }),
+    (async function () {
+      if (typeof sessionId === "string" && currentUser) {
+        joinSession({
+          sessionId,
+          currentUser,
         });
       }
-    }
-
-    joinSession();
-  }, [params.id, currentUser, currentUser?.displayName]);
+    })();
+  }, [sessionId, currentUser]);
 
   useEffect(() => {
     return onSnapshot(
-      doc(db, "planning_poker_sessions", params.id),
+      doc(db, "planning_poker_sessions", sessionId),
       (sessionDoc) => {
         setSession({
-          id: params.id,
+          id: sessionId,
           ...sessionDoc.data(),
         } as PlanningPokerSession);
       }
     );
-  }, [params.id]);
+  }, [sessionId]);
 
   if (!session) {
     return;

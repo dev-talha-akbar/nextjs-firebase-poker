@@ -1,6 +1,8 @@
 import { CreateQuickPlanningPokerSession } from "@/components/CreateQuickPlanningPokerSession";
+import { getAuthenticatedAppForUser } from "@/lib/firebase/serverApp";
 
-export default function Home() {
+export default async function Home() {
+  const { currentUser } = await getAuthenticatedAppForUser();
   return (
     <main className="flex min-h-screen flex-col p-24 bg-gradient-to-t from-white via-gray-200 to-white">
       <div className="flex justify-center">
