@@ -94,16 +94,18 @@ export default function PlanningPoker({ params }: { params: any }) {
             </Chip>
           </div>
           <div className="flex gap-2">
-            <Chip variant="bordered" color="primary">
-              <div className="flex gap-2 items-center">
-                <span>Topic</span>
-                {votingStatus !== "setTopic" ? (
-                  <span>{session.currentTopic}</span>
-                ) : (
-                  <Spinner size="sm" />
-                )}
-              </div>
-            </Chip>
+            {participants.length > 1 && (
+              <Chip variant="bordered" color="primary">
+                <div className="flex gap-2 items-center">
+                  <span>Topic</span>
+                  {votingStatus !== "setTopic" ? (
+                    <span>{session.currentTopic}</span>
+                  ) : (
+                    <Spinner size="sm" />
+                  )}
+                </div>
+              </Chip>
+            )}
             <Chip variant="dot" color="success">
               {participants.length} participants
             </Chip>

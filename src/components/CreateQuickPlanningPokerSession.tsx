@@ -16,7 +16,7 @@ export function CreateQuickPlanningPokerSession() {
       currentModerator: auth.currentUser?.uid,
       participants: [],
       votes: {},
-      votingStatus: "new",
+      votingStatus: "setTopic",
     });
 
     router.push(`/planning-poker/${session.id}`);
